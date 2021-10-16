@@ -1,0 +1,50 @@
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: inherit;
+}
+
+html {
+    font-size: 62.5%;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+        Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    box-sizing: border-box;
+}
+
+.app {
+    background-color: #bbb;
+    height: 100vh;
+    width: 100vw;
+    position: relative;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.selection {
+    position: absolute;
+    height: 20rem;
+    width: 40rem;
+    opacity: 0;
+    background-color: white;
+}
+
+.node {
+    background-color: rgb(0, 255, 0);
+    padding: 0.8rem;
+    border: 2px solid black;
+    border-radius: 1000rem;
+}
+
+.node--vaxxed {
+    background-color: rgb(14, 139, 255);
+}
+
+.node--infected {
+    background-color: #f00;
+}
