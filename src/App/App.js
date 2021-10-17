@@ -3,9 +3,10 @@ import { createContext, useReducer, useEffect } from "react";
 import reducer from "../reducer";
 
 const initialState = {
-    numberOfPeople: 600,
-    vaxRate: 20,
+    numberOfPeople: 400,
+    vaxRate: 0,
     infectionChance: 50,
+    incubationPeriod: 2000,
 };
 
 const mainContext = createContext(initialState);
@@ -105,7 +106,12 @@ function App() {
             const [viewportHeight, viewportWidth] = [app.offsetHeight, app.offsetWidth];
 
             nodes.forEach(function (node, index) {
-                if (node.classList.contains("node--vaxxed") || node.classList.contains("node--infected")) return;
+                const classList = node.classList;
+                if (
+                    classList.contains("node--vaxxed") ||
+                    classList.contains("node--infected" || classList.contains("node-incubating"))
+                )
+                    return;
 
                 const nodeCoords = nodeCoordinates[node.id];
                 const [nodeTop, nodeLeft] = nodeCoords;
@@ -123,7 +129,13 @@ function App() {
 
                     const separation = Math.sqrt(horizonSeparation ** 2 + verticalSeparation ** 2);
 
-                    if (separation < nodeWidth) node.classList.add("node--infected");
+                    if (separation < nodeWidth) {
+                        node.classList.add("node--incubating");
+                        setTimeout(function () {
+                            node.classList.remove("node--incubating");
+                            node.classList.add("node--infected");
+                        }, state.incubationPeriod);
+                    }
                 });
             });
         };
