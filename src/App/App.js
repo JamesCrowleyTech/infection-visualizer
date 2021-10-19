@@ -14,6 +14,8 @@ const mainContext = createContext(initialState);
 function App() {
     const [state, dispatch] = useReducer(reducer, initialState);
 
+    console.log("app rendered");
+
     useEffect(function () {
         const nodes = document.querySelectorAll(".node");
         const nodeCoordinates = new Map();
@@ -37,8 +39,6 @@ function App() {
 
             nodeCoordinates.set(node.id, [topPos, leftPos]);
         });
-
-        console.log(nodeCoordinates);
 
         const nodeWidth = nodes[0].offsetWidth;
 
@@ -140,17 +140,104 @@ function App() {
             });
         };
 
-        setInterval(nodeMovementInterval, 34);
-        setInterval(handleOverlapsInterval, 200);
-    });
+        setInterval(nodeMovementInterval, 41);
+        setInterval(handleOverlapsInterval, 150);
+    }, []);
 
     return (
         <mainContext.Provider value={{ state, dispatch }}>
             <div className="app">
-                <div className="selection"></div>
-                {Array.apply(null, Array(state.numberOfPeople)).map(function (_, i) {
-                    return <div id={`node--${i}`} key={i} className="node"></div>;
-                })}
+                <div className="selection">
+                    <section className="settings">
+                        <h2>Settings</h2>
+                        <div className="settings__setting-frame">
+                            <input
+                                type="range"
+                                min="0"
+                                max="500"
+                                className="settings__slider"
+                                id="slider--nodes"
+                                defaultValue=""
+                                onChange={function () {
+                                    const numberOfNodesSlider = document.querySelector("#slider--nodes");
+                                    const numberOfNodesInput = document.querySelector("#slider-input--nodes");
+                                    numberOfNodesInput.value = numberOfNodesSlider.value;
+                                }}
+                            ></input>
+                            <input
+                                type="input"
+                                className="settings__slider-input"
+                                id="slider-input--nodes"
+                                onChange={function () {
+                                    const numberOfNodesSlider = document.querySelector("#slider--nodes");
+                                    const numberOfNodesInput = document.querySelector("#slider-input--nodes");
+                                    numberOfNodesSlider.value = numberOfNodesInput.value;
+                                }}
+                            ></input>
+                        </div>
+                        <div className="settings__setting-frame">
+                            <input
+                                type="range"
+                                min="0"
+                                max="500"
+                                className="settings__slider"
+                                id="slider--nodes"
+                                defaultValue=""
+                                onChange={function () {
+                                    const numberOfNodesSlider = document.querySelector("#slider--nodes");
+                                    const numberOfNodesInput = document.querySelector("#slider-input--nodes");
+                                    numberOfNodesInput.value = numberOfNodesSlider.value;
+                                }}
+                            ></input>
+                            <input
+                                type="input"
+                                className="settings__slider-input"
+                                id="slider-input--nodes"
+                                onChange={function () {
+                                    const numberOfNodesSlider = document.querySelector("#slider--nodes");
+                                    const numberOfNodesInput = document.querySelector("#slider-input--nodes");
+                                    numberOfNodesSlider.value = numberOfNodesInput.value;
+                                }}
+                            ></input>
+                        </div>
+                        <div className="settings__setting-frame">
+                            <input
+                                type="range"
+                                min="0"
+                                max="500"
+                                className="settings__slider"
+                                id="slider--nodes"
+                                defaultValue=""
+                                onChange={function () {
+                                    const numberOfNodesSlider = document.querySelector("#slider--nodes");
+                                    const numberOfNodesInput = document.querySelector("#slider-input--nodes");
+                                    numberOfNodesInput.value = numberOfNodesSlider.value;
+                                }}
+                            ></input>
+                            <input
+                                type="input"
+                                className="settings__slider-input"
+                                id="slider-input--nodes"
+                                onChange={function () {
+                                    const numberOfNodesSlider = document.querySelector("#slider--nodes");
+                                    const numberOfNodesInput = document.querySelector("#slider-input--nodes");
+                                    numberOfNodesSlider.value = numberOfNodesInput.value;
+                                }}
+                            ></input>
+                        </div>
+                    </section>
+                    <button type="button" onClick={function () {}} className="selection__button button-restart">
+                        Restart
+                    </button>
+                    <button type="button" className="selection__button button-settings">
+                        Infection settings
+                    </button>
+                </div>
+                <main className="main">
+                    {Array.apply(null, Array(state.numberOfPeople)).map(function (_, i) {
+                        return <div id={`node--${i}`} key={i} className="node"></div>;
+                    })}
+                </main>
             </div>
         </mainContext.Provider>
     );
