@@ -150,6 +150,8 @@ function App() {
                 <div className="selection">
                     <section className="settings">
                         <h2>Settings</h2>
+                        TODO
+                        {/* Split these into separate components */}
                         <div className="settings__setting-frame">
                             <input
                                 type="range"
@@ -168,10 +170,40 @@ function App() {
                                 type="input"
                                 className="settings__slider-input"
                                 id="slider-input--nodes"
+                                min="0"
+                                max="500"
                                 onChange={function () {
-                                    const numberOfNodesSlider = document.querySelector("#slider--nodes");
-                                    const numberOfNodesInput = document.querySelector("#slider-input--nodes");
-                                    numberOfNodesSlider.value = numberOfNodesInput.value;
+                                    const slider = document.querySelector("#slider--nodes");
+                                    const input = document.querySelector("#slider-input--nodes");
+                                    slider.value = input.value;
+                                }}
+                            ></input>
+                        </div>
+                        <div className="settings__setting-frame">
+                            <input
+                                type="range"
+                                min="1"
+                                max="100"
+                                className="settings__slider"
+                                id="slider--infectiousness"
+                                defaultValue=""
+                                onChange={function () {
+                                    console.log("guesswhatit'sbuttertime");
+                                    const slider = document.querySelector("#slider--infectiousness");
+                                    const input = document.querySelector("#slider-input--infectiousness");
+                                    input.value = slider.value;
+                                }}
+                            ></input>
+                            <input
+                                type="input"
+                                className="settings__slider-input"
+                                id="slider-input--infectiousness"
+                                min="1"
+                                max="100"
+                                onChange={function () {
+                                    const slider = document.querySelector("#slider--infectiousness");
+                                    const input = document.querySelector("#slider-input--infectiousness");
+                                    slider.value = input.value;
                                 }}
                             ></input>
                         </div>
@@ -179,48 +211,25 @@ function App() {
                             <input
                                 type="range"
                                 min="0"
-                                max="500"
+                                max="100"
                                 className="settings__slider"
-                                id="slider--nodes"
+                                id="slider--vax-rate"
                                 defaultValue=""
                                 onChange={function () {
-                                    const numberOfNodesSlider = document.querySelector("#slider--nodes");
-                                    const numberOfNodesInput = document.querySelector("#slider-input--nodes");
+                                    const numberOfNodesSlider = document.querySelector("#slider--vax-rate");
+                                    const numberOfNodesInput = document.querySelector("#slider-input--vax-rate");
                                     numberOfNodesInput.value = numberOfNodesSlider.value;
                                 }}
                             ></input>
                             <input
                                 type="input"
                                 className="settings__slider-input"
-                                id="slider-input--nodes"
-                                onChange={function () {
-                                    const numberOfNodesSlider = document.querySelector("#slider--nodes");
-                                    const numberOfNodesInput = document.querySelector("#slider-input--nodes");
-                                    numberOfNodesSlider.value = numberOfNodesInput.value;
-                                }}
-                            ></input>
-                        </div>
-                        <div className="settings__setting-frame">
-                            <input
-                                type="range"
                                 min="0"
-                                max="500"
-                                className="settings__slider"
-                                id="slider--nodes"
-                                defaultValue=""
+                                max="100"
+                                id="slider-input--vax-rate"
                                 onChange={function () {
-                                    const numberOfNodesSlider = document.querySelector("#slider--nodes");
-                                    const numberOfNodesInput = document.querySelector("#slider-input--nodes");
-                                    numberOfNodesInput.value = numberOfNodesSlider.value;
-                                }}
-                            ></input>
-                            <input
-                                type="input"
-                                className="settings__slider-input"
-                                id="slider-input--nodes"
-                                onChange={function () {
-                                    const numberOfNodesSlider = document.querySelector("#slider--nodes");
-                                    const numberOfNodesInput = document.querySelector("#slider-input--nodes");
+                                    const numberOfNodesSlider = document.querySelector("#slider--vax-rate");
+                                    const numberOfNodesInput = document.querySelector("#slider-input--vax-rate");
                                     numberOfNodesSlider.value = numberOfNodesInput.value;
                                 }}
                             ></input>
