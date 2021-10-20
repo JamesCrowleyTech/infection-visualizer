@@ -1,6 +1,7 @@
 import "./App.css";
 import { createContext, useReducer, useEffect } from "react";
 import reducer from "../reducer";
+import Setting from "../Setting/Index";
 
 const initialState = {
     numberOfPeople: 400,
@@ -13,8 +14,6 @@ const mainContext = createContext(initialState);
 
 function App() {
     const [state, dispatch] = useReducer(reducer, initialState);
-
-    console.log("app rendered");
 
     useEffect(function () {
         const nodes = document.querySelectorAll(".node");
@@ -150,90 +149,33 @@ function App() {
                 <div className="selection">
                     <section className="settings">
                         <h2>Settings</h2>
-                        TODO
-                        {/* Split these into separate components */}
-                        <div className="settings__setting-frame">
-                            <input
-                                type="range"
-                                min="0"
-                                max="500"
-                                className="settings__slider"
-                                id="slider--nodes"
-                                defaultValue=""
-                                onChange={function () {
-                                    const numberOfNodesSlider = document.querySelector("#slider--nodes");
-                                    const numberOfNodesInput = document.querySelector("#slider-input--nodes");
-                                    numberOfNodesInput.value = numberOfNodesSlider.value;
-                                }}
-                            ></input>
-                            <input
-                                type="input"
-                                className="settings__slider-input"
-                                id="slider-input--nodes"
-                                min="0"
-                                max="500"
-                                onChange={function () {
-                                    const slider = document.querySelector("#slider--nodes");
-                                    const input = document.querySelector("#slider-input--nodes");
-                                    slider.value = input.value;
-                                }}
-                            ></input>
-                        </div>
-                        <div className="settings__setting-frame">
-                            <input
-                                type="range"
-                                min="1"
-                                max="100"
-                                className="settings__slider"
-                                id="slider--infectiousness"
-                                defaultValue=""
-                                onChange={function () {
-                                    console.log("guesswhatit'sbuttertime");
-                                    const slider = document.querySelector("#slider--infectiousness");
-                                    const input = document.querySelector("#slider-input--infectiousness");
-                                    input.value = slider.value;
-                                }}
-                            ></input>
-                            <input
-                                type="input"
-                                className="settings__slider-input"
-                                id="slider-input--infectiousness"
-                                min="1"
-                                max="100"
-                                onChange={function () {
-                                    const slider = document.querySelector("#slider--infectiousness");
-                                    const input = document.querySelector("#slider-input--infectiousness");
-                                    slider.value = input.value;
-                                }}
-                            ></input>
-                        </div>
-                        <div className="settings__setting-frame">
-                            <input
-                                type="range"
-                                min="0"
-                                max="100"
-                                className="settings__slider"
-                                id="slider--vax-rate"
-                                defaultValue=""
-                                onChange={function () {
-                                    const numberOfNodesSlider = document.querySelector("#slider--vax-rate");
-                                    const numberOfNodesInput = document.querySelector("#slider-input--vax-rate");
-                                    numberOfNodesInput.value = numberOfNodesSlider.value;
-                                }}
-                            ></input>
-                            <input
-                                type="input"
-                                className="settings__slider-input"
-                                min="0"
-                                max="100"
-                                id="slider-input--vax-rate"
-                                onChange={function () {
-                                    const numberOfNodesSlider = document.querySelector("#slider--vax-rate");
-                                    const numberOfNodesInput = document.querySelector("#slider-input--vax-rate");
-                                    numberOfNodesSlider.value = numberOfNodesInput.value;
-                                }}
-                            ></input>
-                        </div>
+                        <Setting
+                            title="Population:"
+                            min="1"
+                            max="400"
+                            defaultValue="400"
+                            sliderId="slider--nodes"
+                            inputId="input--nodes"
+                            unit="#"
+                        ></Setting>
+                        <Setting
+                            title="Vaccination Rate:"
+                            min="0"
+                            max="100"
+                            defaultValue="20"
+                            sliderId="slider--vaccination-rate"
+                            inputId="input--vaccincation-rate"
+                            unit="%"
+                        ></Setting>
+                        <Setting
+                            title="Infectiousness:"
+                            min="1"
+                            max="100"
+                            defaultValue="70"
+                            sliderId="slider--infectiousness"
+                            inputId="input--infectiousness"
+                            unit="%"
+                        ></Setting>
                     </section>
                     <button type="button" onClick={function () {}} className="selection__button button-restart">
                         Restart

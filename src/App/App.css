@@ -41,17 +41,38 @@ body {
     background-color: white;
 }
 
+.settings {
+    display: flex;
+    flex-direction: column;
+}
+
 .settings > * {
     margin-bottom: 1.1rem;
 }
 
-.settings__setting-frame > * {
-    display: inline-block;
-    margin-right: 1rem;
+.settings__setting {
+    display: inline-flex;
+    align-items: center;
 }
 
-.settings__slider-input {
+.setting__title {
+    font-size: 1.14rem;
+    display: inline-block;
+    width: 14rem;
+}
+
+.setting__slider {
+    margin-right: 1.1rem;
+}
+
+.setting__input {
     width: 7rem;
+    height: 2.1rem;
+}
+
+.setting__input-unit {
+    transform: translateX(-1.1rem);
+    font-size: 1.4rem;
 }
 
 .selection__button {
@@ -76,7 +97,7 @@ body {
     color: #eee;
 }
 
-.settings__slider {
+.setting__slider {
     background: red;
     -webkit-appearance: none;
     border-radius: 1000rem;
@@ -85,7 +106,7 @@ body {
     width: 40rem;
 }
 
-.settings__slider::-webkit-slider-thumb {
+.setting__slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     border: 1px solid #000000;
     height: 2.6rem;
@@ -96,7 +117,7 @@ body {
     position: relative;
 }
 
-.settings__slider::-moz-range-thumb {
+.setting__slider::-moz-range-thumb {
     background: whitesmoke;
     border: 1px solid #222;
     height: 1.4rem;
@@ -104,7 +125,7 @@ body {
     border-radius: 50%;
 }
 
-.settings__slider::-ms-thumb {
+.setting__slider::-ms-thumb {
     background: whitesmoke;
     border: 1px solid #222;
     height: 1.4rem;
