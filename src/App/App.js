@@ -19,7 +19,7 @@ function App() {
         function () {
             const nodes = document.querySelectorAll(".node");
             const nodeCoordinates = new Map();
-            const vaxxedPopulation = Math.ceil((state.numberOfPeople * state.vaxRate) / 100);
+            const vaccinatedPopulation = Math.ceil((state.numberOfPeople * state.vaxRate) / 100);
             const viewportWidth = window.innerWidth;
             const viewportHeight = window.innerHeight;
             const viewportArea = viewportWidth * viewportHeight;
@@ -34,7 +34,9 @@ function App() {
                 node.classList.remove("node--infected");
             });
 
-            if (vaxxedPopulation < state.numberOfPeople) {
+            // console.log(state.vax);
+
+            if (vaccinatedPopulation < state.numberOfPeople) {
                 nodes[state.numberOfPeople - 1].classList.add("node--infected");
             }
 
@@ -53,8 +55,8 @@ function App() {
 
             const nodeWidth = nodes[0].offsetWidth;
 
-            for (let i = 0; i < vaxxedPopulation; i++) {
-                nodes[i].classList.add("node--vaxxed");
+            for (let i = 0; i < vaccinatedPopulation; i++) {
+                nodes[i].classList.add("node--vaccinated");
             }
 
             const degreesToRadians = Math.PI / 180;
@@ -118,7 +120,7 @@ function App() {
                 nodes.forEach(function (node, index) {
                     const classList = node.classList;
                     if (
-                        classList.contains("node--vaxxed") ||
+                        classList.contains("node--vaccinated") ||
                         classList.contains("node--infected" || classList.contains("node-incubating"))
                     )
                         return;
