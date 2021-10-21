@@ -31,7 +31,7 @@ body {
     width: 100vw;
     padding: 2rem;
     z-index: 1;
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(255, 255, 255, 0.75);
     transition: background-color 0.1s;
 
     --slider-thumb-size: 1.6rem;
@@ -52,7 +52,9 @@ body {
 
 .settings__setting {
     display: inline-flex;
+    width: fit-content;
     align-items: center;
+    position: relative;
 }
 
 .setting__title {
@@ -70,8 +72,13 @@ body {
     height: 2.1rem;
 }
 
+.setting__input::-webkit-inner-spin-button {
+    display: none;
+}
+
 .setting__input-unit {
-    transform: translateX(-1.1rem);
+    position: absolute;
+    right: 1.4rem;
     font-size: 1.4rem;
 }
 
@@ -87,7 +94,7 @@ body {
     position: relative;
 }
 
-.button-restart {
+#button-restart {
     background-color: green;
     margin-right: 1.1rem;
 }

@@ -1,6 +1,12 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 export default function Setting({ title, min, max, defaultValue, sliderId, inputId, unit = "#" }) {
+    useEffect(function () {
+        const slider = document.querySelector("#" + sliderId);
+        const input = document.querySelector("#" + inputId);
+        input.value = slider.value;
+    });
+
     return (
         <div className="settings__setting">
             <h3 className="setting__title">{title}</h3>
@@ -32,6 +38,7 @@ export default function Setting({ title, min, max, defaultValue, sliderId, input
                 }}
             ></input>
             <h4 className="setting__input-unit">{unit}</h4>
+            <div>ㅤ</div>
         </div>
     );
 }
