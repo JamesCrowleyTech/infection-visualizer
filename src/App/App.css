@@ -32,7 +32,7 @@ body {
     padding: 2rem;
     z-index: 1;
     background-color: rgba(255, 255, 255, 0.75);
-    transition: background-color 0.1s, transform 0.2s;
+    transition: background-color 0.1s, transform 0.4s;
 
     --slider-thumb-size: 1.6rem;
 }
@@ -77,6 +77,23 @@ body {
 #button-settings {
     background-color: #222;
     color: #eee;
+    position: relative;
+    padding-right: 3rem;
+}
+
+#button-settings__arrow {
+    position: absolute;
+    display: inline-block;
+    top: 50%;
+    right: 1.4rem;
+    font-size: 2.6rem;
+    transform: translate(50%, -50%) scaleX(1.5);
+    width: fit-content;
+    transition: 0.4s;
+}
+
+.button-settings__arrow--down {
+    transform: translate(50%, -50%) scaleX(1.5) rotate(180deg) !important;
 }
 
 /* Chrome */

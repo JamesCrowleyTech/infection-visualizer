@@ -28,6 +28,7 @@ function App() {
             const nodeDirections = {};
             const restartButton = document.getElementById("button-restart");
             const settingsButton = document.getElementById("button-settings");
+            const settingsButtonArrow = document.getElementById("button-settings__arrow");
             const selection = document.getElementById("selection");
             const settingsTransform = -document.querySelector(".settings").getBoundingClientRect().bottom;
 
@@ -181,10 +182,11 @@ function App() {
                 if (selection.classList.contains("selection--closed")) {
                     selection.style.transform = "translateY(0)";
                     selection.classList.remove("selection--closed");
+                    settingsButtonArrow.classList.remove("button-settings__arrow--down");
                 } else {
                     selection.style.transform = `translateY(${settingsTransform}px)`;
-                    console.log(settingsTransform);
                     selection.classList.add("selection--closed");
+                    settingsButtonArrow.classList.add("button-settings__arrow--down");
                 }
             };
 
@@ -249,6 +251,9 @@ function App() {
                         </button>
                         <button type="button" className="selection__button" id="button-settings">
                             Infection settings
+                            <p id="button-settings__arrow" className="button-settings__arrow--up">
+                                &uarr;
+                            </p>
                         </button>
                     </div>
                 </div>
