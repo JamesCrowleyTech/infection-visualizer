@@ -27,14 +27,15 @@ function App() {
             const nodeBorder = `${parseFloat(nodePadding) < 0.65 ? "0.1rem" : parseFloat(nodePadding) < 1.4 ? "0.2rem" : "0.3rem"}`;
             const nodeDirections = {};
             const restartButton = document.getElementById("button-restart");
+            const settingsButton = document.getElementById("button-settings");
+            const selection = document.getElementById("selection");
+            const settingsTransform = -document.querySelector(".settings").getBoundingClientRect().bottom;
 
             nodes.forEach(function (node) {
                 node.classList.remove("node--vaccinated");
                 node.classList.remove("node--incubating");
                 node.classList.remove("node--infected");
             });
-
-            // console.log(state.vax);
 
             if (vaccinatedPopulation < state.numberOfPeople) {
                 nodes[state.numberOfPeople - 1].classList.add("node--infected");
@@ -163,8 +164,6 @@ function App() {
                 const newInfectionChance = +document.querySelector("#input--infectiousness").value;
                 const newIncubationPeriod = +document.querySelector("#input--incubation-period").value;
 
-                const main = document.querySelector(".main");
-
                 dispatch({
                     type: "SET_ALL_INFECTION_VALUES",
                     payload: {
@@ -178,10 +177,24 @@ function App() {
 
             restartButton.addEventListener("click", restartHandler);
 
+            const settingsHandler = function () {
+                if (selection.classList.contains("selection--closed")) {
+                    selection.style.transform = "translateY(0)";
+                    selection.classList.remove("selection--closed");
+                } else {
+                    selection.style.transform = `translateY(${settingsTransform}px)`;
+                    console.log(settingsTransform);
+                    selection.classList.add("selection--closed");
+                }
+            };
+
+            settingsButton.addEventListener("click", settingsHandler);
+
             return function () {
                 clearInterval(moveNodesInterval);
                 clearInterval(handleOverlapsInterval);
                 restartButton.removeEventListener("click", restartHandler);
+                settingsButton.removeEventListener("click", settingsHandler);
             };
         },
         [state]
@@ -190,8 +203,8 @@ function App() {
     return (
         <mainContext.Provider value={{ state, dispatch }}>
             <div className="app">
-                <div className="selection">
-                    <section className="settings">
+                <div className="selection" id="selection">
+                    <section className="settings" id="settings">
                         <h2>Settings</h2>
                         <Setting
                             title="Population:"
@@ -230,12 +243,14 @@ function App() {
                             unit="days"
                         ></Setting>
                     </section>
-                    <button type="button" onClick={function () {}} className="selection__button" id="button-restart">
-                        Restart
-                    </button>
-                    <button type="button" className="selection__button button-settings">
-                        Infection settings
-                    </button>
+                    <div className="buttons">
+                        <button type="button" onClick={function () {}} className="selection__button" id="button-restart">
+                            Restart
+                        </button>
+                        <button type="button" className="selection__button" id="button-settings">
+                            Infection settings
+                        </button>
+                    </div>
                 </div>
                 <main className="main">
                     {Array.apply(null, Array(state.numberOfPeople)).map(function (_, i) {

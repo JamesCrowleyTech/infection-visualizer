@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import "./Index.css";
 
 export default function Setting({ title, min, max, defaultValue, sliderId, inputId, unit = "#" }) {
     useEffect(function () {
