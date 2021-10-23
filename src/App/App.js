@@ -2,12 +2,13 @@ import "./App.css";
 import { createContext, useReducer, useEffect } from "react";
 import reducer from "../reducer";
 import Setting from "../Setting/Index";
+import cloneDeep from "lodash.clonedeep";
 
 const initialState = {
     numberOfPeople: 400,
     vaxRate: 20,
     infectionChance: 50,
-    incubationPeriod: 20,
+    incubationPeriod: 2,
 };
 
 const mainContext = createContext(initialState);
@@ -20,8 +21,8 @@ function App() {
             const nodes = document.querySelectorAll(".node");
             const nodeCoordinates = new Map();
             const vaccinatedPopulation = Math.ceil((state.numberOfPeople * state.vaxRate) / 100);
-            const viewportWidth = window.innerWidth;
-            const viewportHeight = window.innerHeight;
+            let viewportWidth = window.innerWidth;
+            let viewportHeight = window.innerHeight;
             const viewportArea = viewportWidth * viewportHeight;
             const nodePadding = `${0.8 * (viewportArea / 2073600) * (300 / (state.numberOfPeople + 60)) + 0.5}rem`;
             const nodeBorder = `${parseFloat(nodePadding) < 0.65 ? "0.1rem" : parseFloat(nodePadding) < 1.4 ? "0.2rem" : "0.3rem"}`;
@@ -32,14 +33,15 @@ function App() {
             const selection = document.getElementById("selection");
             const settingsTransform = -document.querySelector(".settings").getBoundingClientRect().bottom;
 
-            nodes.forEach(function (node) {
-                node.classList.remove("node--vaccinated");
-                node.classList.remove("node--incubating");
-                node.classList.remove("node--infected");
-            });
+            // grid for hashing locations of nodes
 
-            if (vaccinatedPopulation < state.numberOfPeople) {
-                nodes[state.numberOfPeople - 1].classList.add("node--infected");
+            let gridCellsX = 10;
+            let gridCellsY = 10;
+            const grid = {};
+            for (let gridY = 0; gridY < gridCellsY; gridY++) {
+                for (let gridX = 0; gridX < gridCellsX; gridX++) {
+                    grid[`${gridY},${gridX}`] = [];
+                }
             }
 
             nodes.forEach(function (node) {
@@ -51,14 +53,35 @@ function App() {
                 node.style.top = `${topPos}%`;
                 node.style.left = `${leftPos}%`;
                 nodeDirections[node.id] = Math.random() * 360;
-
                 nodeCoordinates.set(node.id, [topPos, leftPos]);
+
+                const bucketY = Math.floor(topPos / gridCellsY);
+                const bucketX = Math.floor(leftPos / gridCellsX);
+
+                grid[`${bucketY},${bucketX}`].push(node.id);
             });
+
+            console.log(cloneDeep(grid));
 
             const nodeWidth = nodes[0].offsetWidth;
 
+            // window.addEventListener("resize", function () {
+            //     viewportWidth = window.innerWidth;
+            //     viewportHeight = window.innerHeight;
+            // });
+
+            nodes.forEach(function (node) {
+                node.classList.remove("node--vaccinated");
+                node.classList.remove("node--incubating");
+                node.classList.remove("node--infected");
+            });
+
             for (let i = 0; i < vaccinatedPopulation; i++) {
                 nodes[i].classList.add("node--vaccinated");
+            }
+
+            if (vaccinatedPopulation < state.numberOfPeople) {
+                nodes[state.numberOfPeople - 1].classList.add("node--infected");
             }
 
             const degreesToRadians = Math.PI / 180;
@@ -117,7 +140,9 @@ function App() {
             const handleOverlaps = function () {
                 const app = document.querySelector(".app");
 
-                const [viewportHeight, viewportWidth] = [app.offsetHeight, app.offsetWidth];
+                const [viewportHeight, viewportWidth] = [window.innerHeight, window.innerWidth];
+
+                console.log(viewportHeight, viewportWidth);
 
                 nodes.forEach(function (node, index) {
                     const classList = node.classList;
