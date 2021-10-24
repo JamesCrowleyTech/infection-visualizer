@@ -5,7 +5,7 @@ import Setting from "../Setting/Index";
 import cloneDeep from "lodash.clonedeep";
 
 const initialState = {
-    numberOfPeople: 400,
+    numberOfPeople: 500,
     vaxRate: 20,
     infectionChance: 50,
     incubationPeriod: 2,
@@ -35,47 +35,22 @@ function App() {
 
             // grid for hashing locations of nodes
 
-            let gridCellsX = 10;
-            let gridCellsY = 10;
-            const grid = {};
-            for (let gridY = 0; gridY < gridCellsY; gridY++) {
-                for (let gridX = 0; gridX < gridCellsX; gridX++) {
-                    grid[`${gridY},${gridX}`] = [];
-                }
-            }
-
             nodes.forEach(function (node) {
                 const topPos = Math.random() * 100;
                 const leftPos = Math.random() * 100;
-
                 node.style.padding = `${nodePadding}`;
                 node.style.border = `${nodeBorder} solid black`;
                 node.style.top = `${topPos}%`;
                 node.style.left = `${leftPos}%`;
                 nodeDirections[node.id] = Math.random() * 360;
+
                 nodeCoordinates.set(node.id, [topPos, leftPos]);
-
-                const bucketY = Math.floor(topPos / gridCellsY);
-                const bucketX = Math.floor(leftPos / gridCellsX);
-
-                grid[`${bucketY},${bucketX}`].push(node.id);
-            });
-
-            console.log(cloneDeep(grid));
-
-            const nodeWidth = nodes[0].offsetWidth;
-
-            // window.addEventListener("resize", function () {
-            //     viewportWidth = window.innerWidth;
-            //     viewportHeight = window.innerHeight;
-            // });
-
-            nodes.forEach(function (node) {
                 node.classList.remove("node--vaccinated");
                 node.classList.remove("node--incubating");
                 node.classList.remove("node--infected");
             });
 
+            const nodeWidth = nodes[0].offsetWidth;
             for (let i = 0; i < vaccinatedPopulation; i++) {
                 nodes[i].classList.add("node--vaccinated");
             }
@@ -87,7 +62,7 @@ function App() {
             const degreesToRadians = Math.PI / 180;
 
             const moveNodes = function () {
-                const movement = 0.1;
+                const movement = 0.3;
                 nodes.forEach(function (node) {
                     const parseFloatedTop = parseFloat(node.style.top);
                     const parseFloatedLeft = parseFloat(node.style.left);
@@ -97,33 +72,36 @@ function App() {
                     const verticalMove = movement * -Math.sin(direction * degreesToRadians);
                     const horizontalMove = movement * Math.cos(direction * degreesToRadians);
 
-                    const newTop = parseFloatedTop + verticalMove;
-                    const newLeft = parseFloatedLeft + horizontalMove;
+                    const topAdded = parseFloatedTop + verticalMove;
+                    const leftAdded = parseFloatedLeft + horizontalMove;
+
+                    const newTop = 0 < topAdded && topAdded < 100 ? topAdded : topAdded < 0 ? 0 : 100;
+                    const newLeft = 0 < leftAdded && leftAdded < 100 ? leftAdded : leftAdded < 0 ? 0 : 100;
 
                     node.style.top = `${newTop}%`;
                     node.style.left = `${newLeft}%`;
 
                     nodeCoordinates[node.id] = [newTop, newLeft];
 
-                    if (parseFloatedLeft < 0 && 90 < direction && direction < 270) {
+                    if (parseFloatedLeft <= 0 && 90 < direction && direction < 270) {
                         if (direction < 180) {
                             nodeDirections[node.id] = 90 - Math.random() * 30;
                         } else {
                             nodeDirections[node.id] = 270 + Math.random() * 30;
                         }
-                    } else if (parseFloatedLeft > 98 && (direction < 90 || 270 < direction)) {
+                    } else if (parseFloatedLeft >= 100 && (direction < 90 || 270 < direction)) {
                         if (direction < 90) {
                             nodeDirections[node.id] = 90 + Math.random() * 30;
                         } else {
                             nodeDirections[node.id] = 270 - Math.random() * 30;
                         }
-                    } else if (parseFloatedTop < 0 && 0 < direction && direction < 180) {
+                    } else if (parseFloatedTop <= 0 && 0 < direction && direction < 180) {
                         if (direction < 90) {
                             nodeDirections[node.id] = 360 - Math.random() * 30;
                         } else {
                             nodeDirections[node.id] = 180 + Math.random() * 30;
                         }
-                    } else if (parseFloatedTop > 98 && 180 < direction) {
+                    } else if (parseFloatedTop >= 100 && 180 < direction) {
                         if (direction < 270) {
                             nodeDirections[node.id] = 180 - Math.random() * 30;
                         } else {
@@ -142,47 +120,123 @@ function App() {
 
                 const [viewportHeight, viewportWidth] = [window.innerHeight, window.innerWidth];
 
-                console.log(viewportHeight, viewportWidth);
+                const nodeIdToNode = {};
+
+                let gridCellsX = Math.ceil(viewportWidth / nodeWidth);
+                let gridCellsY = Math.ceil(viewportHeight / nodeWidth);
+                console.log(gridCellsX * gridCellsY);
+                const grid = {};
+
+                for (let gridY = 0; gridY < gridCellsY; gridY++) {
+                    for (let gridX = 0; gridX < gridCellsX; gridX++) {
+                        grid[`${gridY},${gridX}`] = [];
+                    }
+                }
+
+                nodes.forEach(function (node, index) {
+                    const [nodeTop, nodeLeft] = nodeCoordinates[node.id];
+                    let bucketY = Math.floor((nodeTop / 100) * gridCellsY);
+                    let bucketX = Math.floor((nodeLeft / 100) * gridCellsX);
+                    if (bucketY >= gridCellsY) bucketY = gridCellsY - 1;
+                    if (bucketY < 0) bucketY = 0;
+                    if (bucketX >= gridCellsX) bucketX = gridCellsX - 1;
+                    if (bucketX < 0) bucketX = 0;
+
+                    nodeIdToNode[node.id] = node;
+                    try {
+                        grid[`${bucketY},${bucketX}`].push(node.id);
+                    } catch {
+                        console.log(bucketY, bucketX, nodeTop, nodeLeft);
+                    }
+                });
 
                 nodes.forEach(function (node, index) {
                     const classList = node.classList;
                     if (
                         classList.contains("node--vaccinated") ||
-                        classList.contains("node--infected" || classList.contains("node-incubating"))
+                        classList.contains("node--infected" || classList.contains("node--incubating"))
                     )
                         return;
 
-                    const nodeCoords = nodeCoordinates[node.id];
-                    const [nodeTop, nodeLeft] = nodeCoords;
+                    const halfNodeWidth = nodeWidth / 2;
 
-                    nodes.forEach(function (otherNode, otherIndex) {
-                        if (index === otherIndex) return;
+                    const [nodeTop, nodeLeft] = nodeCoordinates[node.id];
 
-                        if (!otherNode.classList.contains("node--infected")) return;
+                    let bucketY = Math.floor((nodeTop / 100) * gridCellsY);
+                    let bucketX = Math.floor((nodeLeft / 100) * gridCellsX);
 
-                        const otherNodeCoords = nodeCoordinates[otherNode.id];
-                        const [otherNodeTop, otherNodeLeft] = otherNodeCoords;
+                    if (bucketY >= gridCellsY) bucketY = gridCellsY - 1;
+                    if (bucketY < 0) bucketY = 0;
+                    if (bucketX >= gridCellsX) bucketX = gridCellsX - 1;
+                    if (bucketX < 0) bucketX = 0;
 
-                        const horizonSeparation = (Math.abs(nodeLeft - otherNodeLeft) * viewportWidth) / 100;
-                        const verticalSeparation = (Math.abs(nodeTop - otherNodeTop) * viewportHeight) / 100;
+                    const bucket = `${bucketY},${bucketX}`;
 
-                        const separation = Math.sqrt(horizonSeparation ** 2 + verticalSeparation ** 2);
+                    const bucketsToSearch = [bucket];
 
-                        if (separation < nodeWidth) {
-                            node.classList.add("node--incubating");
-                            setTimeout(function () {
-                                if (node.classList.contains("node--incubating")) {
-                                    node.classList.remove("node--incubating");
-                                    node.classList.add("node--infected");
-                                }
-                            }, state.incubationPeriod * 1000);
+                    const nodeCentreTop = (nodeTop / 100) * viewportHeight;
+                    const nodeCentreLeft = (nodeLeft / 100) * viewportWidth;
+
+                    const overlappingTop =
+                        nodeCentreTop - halfNodeWidth > 0 &&
+                        Math.floor(((nodeCentreTop - halfNodeWidth) / viewportHeight) * gridCellsY) < bucketY;
+
+                    const overlappingBottom =
+                        nodeCentreTop + halfNodeWidth < viewportHeight &&
+                        Math.floor(((nodeCentreTop + halfNodeWidth) / viewportHeight) * gridCellsY) > bucketY;
+
+                    const overlappingLeft =
+                        nodeCentreLeft - halfNodeWidth > 0 &&
+                        Math.floor(((nodeCentreLeft - halfNodeWidth) / viewportWidth) * gridCellsX) < bucketX;
+
+                    const overlappingRight =
+                        nodeCentreLeft + halfNodeWidth < viewportWidth &&
+                        Math.floor(((nodeCentreLeft + halfNodeWidth) / viewportWidth) * gridCellsX) > bucketX;
+
+                    if (overlappingTop) bucketsToSearch.push(`${bucketY - 1},${bucketX}`);
+                    if (overlappingBottom) bucketsToSearch.push(`${bucketY + 1},${bucketX}`);
+                    if (overlappingLeft) bucketsToSearch.push(`${bucketY},${bucketX - 1}`);
+                    if (overlappingRight) bucketsToSearch.push(`${bucketY},${bucketX + 1}`);
+                    if (overlappingBottom && overlappingRight) bucketsToSearch.push(`${bucketY + 1},${bucketX + 1}`);
+                    if (overlappingTop && overlappingRight) bucketsToSearch.push(`${bucketY - 1},${bucketX + 1}`);
+                    if (overlappingBottom && overlappingLeft) bucketsToSearch.push(`${bucketY + 1},${bucketX - 1}`);
+                    if (overlappingTop && overlappingLeft) bucketsToSearch.push(`${bucketY - 1},${bucketX - 1}`);
+
+                    for (const bucket of bucketsToSearch) {
+                        if (!grid[bucket]) {
+                            console.log(bucket, grid[bucket]);
                         }
-                    });
+                        for (const otherNodeId of grid[bucket]) {
+                            if (otherNodeId === node.id) continue;
+
+                            if (!document.querySelector(`#${otherNodeId}`).classList.contains("node--infected")) continue;
+
+                            const [otherNodeTop, otherNodeLeft] = nodeCoordinates[otherNodeId];
+
+                            const horizonSeparation = (Math.abs(nodeLeft - otherNodeLeft) * viewportWidth) / 100;
+                            const verticalSeparation = (Math.abs(nodeTop - otherNodeTop) * viewportHeight) / 100;
+                            const separation = Math.sqrt(horizonSeparation ** 2 + verticalSeparation ** 2);
+
+                            if (separation < nodeWidth) {
+                                if (state.incubationPeriod === 0) {
+                                    node.classList.add("node--infected");
+                                } else {
+                                    node.classList.add("node--incubating");
+                                    setTimeout(function () {
+                                        if (node.classList.contains("node--incubating")) {
+                                            node.classList.remove("node--incubating");
+                                            node.classList.add("node--infected");
+                                        }
+                                    }, state.incubationPeriod * 1000);
+                                }
+                            }
+                        }
+                    }
                 });
             };
 
-            const moveNodesInterval = setInterval(moveNodes, 41);
-            const handleOverlapsInterval = setInterval(handleOverlaps, 150);
+            const moveNodesInterval = setInterval(moveNodes, 40);
+            const handleOverlapsInterval = setInterval(handleOverlaps, 100);
 
             const restartHandler = function () {
                 const newNumberOfPeople = +document.querySelector("#input--nodes").value;
@@ -236,8 +290,8 @@ function App() {
                         <Setting
                             title="Population:"
                             min="1"
-                            max="400"
-                            defaultValue="400"
+                            max="4000"
+                            defaultValue="500"
                             sliderId="slider--nodes"
                             inputId="input--nodes"
                             unit="#"
@@ -267,7 +321,7 @@ function App() {
                             defaultValue="2"
                             sliderId="slider--incubation-period"
                             inputId="input--incubation-period"
-                            unit="days"
+                            unit="secs"
                         ></Setting>
                     </section>
                     <div className="buttons">

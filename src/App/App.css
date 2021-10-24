@@ -100,6 +100,7 @@ body {
     position: absolute;
     border: 2px solid black;
     border-radius: 1000rem;
+    transform: translate(-50%, -50%);
 }
 
 .node--vaccinated {
