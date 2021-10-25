@@ -9,6 +9,7 @@ const initialState = {
     vaxRate: 20,
     infectionChance: 50,
     incubationPeriod: 2,
+    speed: 25,
 };
 
 const mainContext = createContext(initialState);
@@ -62,7 +63,8 @@ function App() {
             const degreesToRadians = Math.PI / 180;
 
             const moveNodes = function () {
-                const movement = 0.3;
+                console.log(state.speed);
+                const movement = state.speed / 130;
                 nodes.forEach(function (node) {
                     const parseFloatedTop = parseFloat(node.style.top);
                     const parseFloatedLeft = parseFloat(node.style.left);
@@ -85,27 +87,27 @@ function App() {
 
                     if (parseFloatedLeft <= 0 && 90 < direction && direction < 270) {
                         if (direction < 180) {
-                            nodeDirections[node.id] = 90 - Math.random() * 30;
+                            nodeDirections[node.id] = 90 - Math.random() * 90;
                         } else {
-                            nodeDirections[node.id] = 270 + Math.random() * 30;
+                            nodeDirections[node.id] = 270 + Math.random() * 90;
                         }
                     } else if (parseFloatedLeft >= 100 && (direction < 90 || 270 < direction)) {
                         if (direction < 90) {
-                            nodeDirections[node.id] = 90 + Math.random() * 30;
+                            nodeDirections[node.id] = 90 + Math.random() * 90;
                         } else {
-                            nodeDirections[node.id] = 270 - Math.random() * 30;
+                            nodeDirections[node.id] = 270 - Math.random() * 90;
                         }
                     } else if (parseFloatedTop <= 0 && 0 < direction && direction < 180) {
                         if (direction < 90) {
-                            nodeDirections[node.id] = 360 - Math.random() * 30;
+                            nodeDirections[node.id] = 360 - Math.random() * 90;
                         } else {
-                            nodeDirections[node.id] = 180 + Math.random() * 30;
+                            nodeDirections[node.id] = 180 + Math.random() * 90;
                         }
                     } else if (parseFloatedTop >= 100 && 180 < direction) {
                         if (direction < 270) {
-                            nodeDirections[node.id] = 180 - Math.random() * 30;
+                            nodeDirections[node.id] = 180 - Math.random() * 90;
                         } else {
-                            nodeDirections[node.id] = Math.random() * 30;
+                            nodeDirections[node.id] = Math.random() * 90;
                         }
                     } else {
                         nodeDirections[node.id] += Math.random() * 40 - 20;
@@ -124,7 +126,6 @@ function App() {
 
                 let gridCellsX = Math.ceil(viewportWidth / nodeWidth);
                 let gridCellsY = Math.ceil(viewportHeight / nodeWidth);
-                console.log(gridCellsX * gridCellsY);
                 const grid = {};
 
                 for (let gridY = 0; gridY < gridCellsY; gridY++) {
@@ -143,11 +144,7 @@ function App() {
                     if (bucketX < 0) bucketX = 0;
 
                     nodeIdToNode[node.id] = node;
-                    try {
-                        grid[`${bucketY},${bucketX}`].push(node.id);
-                    } catch {
-                        console.log(bucketY, bucketX, nodeTop, nodeLeft);
-                    }
+                    grid[`${bucketY},${bucketX}`].push(node.id);
                 });
 
                 nodes.forEach(function (node, index) {
@@ -204,7 +201,6 @@ function App() {
 
                     for (const bucket of bucketsToSearch) {
                         if (!grid[bucket]) {
-                            console.log(bucket, grid[bucket]);
                         }
                         for (const otherNodeId of grid[bucket]) {
                             if (otherNodeId === node.id) continue;
@@ -243,6 +239,7 @@ function App() {
                 const newVaccinationRate = +document.querySelector("#input--vaccincation-rate").value;
                 const newInfectionChance = +document.querySelector("#input--infectiousness").value;
                 const newIncubationPeriod = +document.querySelector("#input--incubation-period").value;
+                const newSpeed = +document.querySelector("#input--speed").value;
 
                 dispatch({
                     type: "SET_ALL_INFECTION_VALUES",
@@ -251,6 +248,7 @@ function App() {
                         vaxRate: newVaccinationRate,
                         infectionChance: newInfectionChance,
                         incubationPeriod: newIncubationPeriod,
+                        speed: newSpeed,
                     },
                 });
             };
@@ -290,7 +288,7 @@ function App() {
                         <Setting
                             title="Population:"
                             min="1"
-                            max="4000"
+                            max="2000"
                             defaultValue="500"
                             sliderId="slider--nodes"
                             inputId="input--nodes"
@@ -322,6 +320,15 @@ function App() {
                             sliderId="slider--incubation-period"
                             inputId="input--incubation-period"
                             unit="secs"
+                        ></Setting>
+                        <Setting
+                            title="Speed:"
+                            min="10"
+                            max="100"
+                            defaultValue="40"
+                            sliderId="slider--speed"
+                            inputId="input--speed"
+                            unit="%"
                         ></Setting>
                     </section>
                     <div className="buttons">
