@@ -2,13 +2,13 @@ import "./App.css";
 import { createContext, useReducer, useEffect } from "react";
 import reducer from "../reducer";
 import Setting from "../Setting/Index";
-import cloneDeep from "lodash.clonedeep";
+import icons from "../img/svg/icons.svg";
 
 const initialState = {
     numberOfPeople: 500,
     vaxRate: 20,
     infectionChance: 50,
-    incubationPeriod: 2,
+    incubationPeriod: 2000,
     speed: 25,
 };
 
@@ -33,6 +33,10 @@ function App() {
             const settingsButtonArrow = document.getElementById("button-settings__arrow");
             const selection = document.getElementById("selection");
             const settingsTransform = -document.querySelector(".settings").getBoundingClientRect().bottom;
+            const pauseButton = document.getElementById("button-pause");
+            const incubationTimeTracker = {};
+            const incubationInterval = 184;
+            let paused = false;
 
             // grid for hashing locations of nodes
 
@@ -62,8 +66,12 @@ function App() {
 
             const degreesToRadians = Math.PI / 180;
 
+            const sleep = function (ms) {
+                return new Promise((resolve) => setTimeout(resolve, ms));
+            };
+
             const moveNodes = function () {
-                console.log(state.speed);
+                if (paused) return;
                 const movement = state.speed / 130;
                 nodes.forEach(function (node) {
                     const parseFloatedTop = parseFloat(node.style.top);
@@ -118,7 +126,7 @@ function App() {
             };
 
             const handleOverlaps = function () {
-                const app = document.querySelector(".app");
+                if (paused) return;
 
                 const [viewportHeight, viewportWidth] = [window.innerHeight, window.innerWidth];
 
@@ -200,8 +208,6 @@ function App() {
                     if (overlappingTop && overlappingLeft) bucketsToSearch.push(`${bucketY - 1},${bucketX - 1}`);
 
                     for (const bucket of bucketsToSearch) {
-                        if (!grid[bucket]) {
-                        }
                         for (const otherNodeId of grid[bucket]) {
                             if (otherNodeId === node.id) continue;
 
@@ -218,12 +224,7 @@ function App() {
                                     node.classList.add("node--infected");
                                 } else {
                                     node.classList.add("node--incubating");
-                                    setTimeout(function () {
-                                        if (node.classList.contains("node--incubating")) {
-                                            node.classList.remove("node--incubating");
-                                            node.classList.add("node--infected");
-                                        }
-                                    }, state.incubationPeriod * 1000);
+                                    if (!incubationTimeTracker[node.id]) incubationTimeTracker[node.id] = state.incubationPeriod;
                                 }
                             }
                         }
@@ -231,15 +232,42 @@ function App() {
                 });
             };
 
-            const moveNodesInterval = setInterval(moveNodes, 40);
-            const handleOverlapsInterval = setInterval(handleOverlaps, 100);
+            const incubateNodes = function () {
+                if (paused) return;
+                Object.entries(incubationTimeTracker).forEach(function ([key, value]) {
+                    value -= incubationInterval;
+                    if (value <= 0) {
+                        const nodeToInfect = document.getElementById(key);
+                        nodeToInfect.classList.remove("node--incubating");
+                        nodeToInfect.classList.add("node--infected");
+                        delete incubationTimeTracker[key];
+                    } else incubationTimeTracker[key] -= incubationInterval;
+                });
+            };
+
+            const pauseButtonHandler = function () {
+                const pauseButton = document.getElementById("button-pause");
+                const pauseButtonSvgPlay = document.getElementById("button-pause-svg--play");
+                const pauseButtonSvgPause = document.getElementById("button-pause-svg--pause");
+
+                if (paused) {
+                    paused = false;
+                    pauseButtonSvgPause.classList.remove("button-pause-svg--hidden");
+                    pauseButtonSvgPlay.classList.add("button-pause-svg--hidden");
+                } else {
+                    pauseButtonSvgPlay.classList.remove("button-pause-svg--hidden");
+                    pauseButtonSvgPause.classList.add("button-pause-svg--hidden");
+                    paused = true;
+                }
+            };
 
             const restartHandler = function () {
                 const newNumberOfPeople = +document.querySelector("#input--nodes").value;
                 const newVaccinationRate = +document.querySelector("#input--vaccincation-rate").value;
                 const newInfectionChance = +document.querySelector("#input--infectiousness").value;
-                const newIncubationPeriod = +document.querySelector("#input--incubation-period").value;
+                const newIncubationPeriod = +document.querySelector("#input--incubation-period").value * 1000;
                 const newSpeed = +document.querySelector("#input--speed").value;
+                for (const key in incubationTimeTracker) delete incubationTimeTracker[key];
 
                 dispatch({
                     type: "SET_ALL_INFECTION_VALUES",
@@ -253,8 +281,6 @@ function App() {
                 });
             };
 
-            restartButton.addEventListener("click", restartHandler);
-
             const settingsHandler = function () {
                 if (selection.classList.contains("selection--closed")) {
                     selection.style.transform = "translateY(0)";
@@ -267,11 +293,18 @@ function App() {
                 }
             };
 
+            const moveNodesInterval = setInterval(moveNodes, 53);
+            const handleOverlapsInterval = setInterval(handleOverlaps, 97);
+            const incubateNodesInterval = setInterval(incubateNodes, incubationInterval);
             settingsButton.addEventListener("click", settingsHandler);
+            restartButton.addEventListener("click", restartHandler);
+            pauseButton.addEventListener("click", pauseButtonHandler);
 
             return function () {
                 clearInterval(moveNodesInterval);
                 clearInterval(handleOverlapsInterval);
+                clearInterval(incubateNodesInterval);
+                pauseButton.addEventListener("click", pauseButtonHandler);
                 restartButton.removeEventListener("click", restartHandler);
                 settingsButton.removeEventListener("click", settingsHandler);
             };
@@ -340,6 +373,14 @@ function App() {
                             <p id="button-settings__arrow" className="button-settings__arrow--up">
                                 &uarr;
                             </p>
+                        </button>
+                        <button id="button-pause">
+                            <svg className="button-pause-svg button-pause-svg--hidden" id="button-pause-svg--play">
+                                <use className="button-pause-path" href={`${icons}#icon-play3`}></use>
+                            </svg>
+                            <svg className="button-pause-svg" id="button-pause-svg--pause">
+                                <use className="button-pause-path" href={`${icons}#icon-pause2`}></use>
+                            </svg>
                         </button>
                     </div>
                 </div>

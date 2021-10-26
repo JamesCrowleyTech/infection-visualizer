@@ -50,6 +50,12 @@ body {
     margin-bottom: 1.1rem;
 }
 
+.buttons {
+    margin-top: 2rem;
+    display: flex;
+    align-items: center;
+}
+
 .selection__button {
     font-size: 1.8rem;
     font-family: "Courier New", monospace;
@@ -60,10 +66,6 @@ body {
     cursor: pointer;
     opacity: 1;
     position: relative;
-}
-
-.buttons {
-    margin-top: 2rem;
 }
 
 #button-restart {
@@ -87,6 +89,34 @@ body {
     transform: translate(50%, -50%) scaleX(1.5);
     width: fit-content;
     transition: 0.4s;
+}
+
+#button-pause {
+    background-color: transparent;
+    height: 4.5rem;
+    width: 4.5rem;
+    outline: none;
+    border: none;
+    margin-left: auto;
+    cursor: pointer;
+    position: relative;
+}
+
+.button-pause-svg {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.button-pause-path {
+    width: 33.75px;
+    height: 33.75px;
+}
+
+.button-pause-svg--hidden {
+    display: none;
 }
 
 .button-settings__arrow--down {
