@@ -30,7 +30,7 @@ body {
     position: absolute;
     width: 100vw;
     padding: 2rem;
-    z-index: 1;
+    z-index: 10;
     background-color: rgba(255, 255, 255, 0.75);
     transition: background-color 0.1s, transform 0.4s;
 
@@ -131,16 +131,30 @@ body {
     border: 2px solid black;
     border-radius: 1000rem;
     transform: translate(-50%, -50%);
+    z-index: 4;
 }
 
 .node--vaccinated {
     background-color: rgb(14, 139, 255);
+    z-index: 2;
 }
 
 .node--incubating {
     background-color: orange;
+    z-index: 3;
 }
 
 .node--infected {
     background-color: #f00;
+    z-index: 5;
+}
+
+.node--recovered {
+    background-color: rgb(14, 38, 255);
+    z-index: 2;
+}
+
+.node--deceased {
+    background-color: rgb(36, 36, 36);
+    z-index: 1;
 }

@@ -11,7 +11,7 @@ const initialState = {
     incubationPeriod: 2000,
     speed: 25,
     mortalityRate: 10,
-    timeUntilMortalityOrRecovery: 10000,
+    periodUntilMortalityOrRecovery: 20000,
 };
 
 const mainContext = createContext(initialState);
@@ -38,15 +38,19 @@ function App() {
             const pauseButton = document.getElementById("button-pause");
             const pauseButtonSvgPlay = document.getElementById("button-pause-svg--play");
             const pauseButtonSvgPause = document.getElementById("button-pause-svg--pause");
+            const mortalityRecoveryTracker = {};
             const incubationTimeTracker = {};
-            const incubationInterval = 184;
+            const incubationInterval = 200;
+            const mortalityRecoveryInterval = 200;
             let paused = false;
             const nodeIds = [];
             for (const node of nodes) nodeIds.push(node.id);
-
             const infectionMap = {};
-
-            // grid for hashing locations of nodes
+            let healthy = state.numberOfPeople - 1;
+            let incubating = 0;
+            let infected = 1;
+            let recovered = 0;
+            let deceased = 0;
 
             nodes.forEach(function (node) {
                 const topPos = Math.random() * 100;
@@ -61,6 +65,8 @@ function App() {
                 node.classList.remove("node--vaccinated");
                 node.classList.remove("node--incubating");
                 node.classList.remove("node--infected");
+                node.classList.remove("node--recovered");
+                node.classList.remove("node--deceased");
 
                 infectionMap[node.id] = new Set();
                 nodeIds.forEach(function (nodeId) {
@@ -77,6 +83,7 @@ function App() {
 
             if (vaccinatedPopulation < state.numberOfPeople) {
                 nodes[state.numberOfPeople - 1].classList.add("node--infected");
+                mortalityRecoveryTracker[nodes[state.numberOfPeople - 1].id] = state.periodUntilMortalityOrRecovery;
             }
 
             const degreesToRadians = Math.PI / 180;
@@ -85,6 +92,8 @@ function App() {
                 if (paused) return;
                 const movement = state.speed / 200;
                 nodes.forEach(function (node) {
+                    if (node.classList.contains("node--deceased")) return;
+
                     const parseFloatedTop = parseFloat(node.style.top);
                     const parseFloatedLeft = parseFloat(node.style.left);
 
@@ -170,6 +179,8 @@ function App() {
                     const classList = node.classList;
                     if (
                         classList.contains("node--vaccinated") ||
+                        classList.contains("node--recovered") ||
+                        classList.contains("node--deceased") ||
                         classList.contains("node--infected" || classList.contains("node--incubating"))
                     )
                         return;
@@ -234,6 +245,7 @@ function App() {
                             if (separation < nodeWidth) {
                                 if (state.incubationPeriod === 0) {
                                     node.classList.add("node--infected");
+                                    mortalityRecoveryTracker[node.id] = state.periodUntilMortalityOrRecovery;
                                 } else {
                                     node.classList.add("node--incubating");
                                     if (!incubationTimeTracker[node.id]) incubationTimeTracker[node.id] = state.incubationPeriod;
@@ -241,6 +253,20 @@ function App() {
                             }
                         }
                     }
+                });
+            };
+
+            const advanceNodeMortalityRecovery = function () {
+                if (paused) return;
+                Object.entries(mortalityRecoveryTracker).forEach(function ([key, value]) {
+                    value -= mortalityRecoveryInterval;
+                    if (value <= 0) {
+                        const node = document.getElementById(key);
+                        node.classList.remove("node--infected");
+                        if (state.mortalityRate / 100 > Math.random()) node.classList.add("node--deceased");
+                        else node.classList.add("node--recovered");
+                        delete mortalityRecoveryTracker[key];
+                    } else mortalityRecoveryTracker[key] -= mortalityRecoveryInterval;
                 });
             };
 
@@ -252,6 +278,7 @@ function App() {
                         const nodeToInfect = document.getElementById(key);
                         nodeToInfect.classList.remove("node--incubating");
                         nodeToInfect.classList.add("node--infected");
+                        mortalityRecoveryTracker[key] = state.periodUntilMortalityOrRecovery;
                         delete incubationTimeTracker[key];
                     } else incubationTimeTracker[key] -= incubationInterval;
                 });
@@ -275,6 +302,8 @@ function App() {
                 const newInfectionChance = +document.querySelector("#input--infectiousness").value;
                 const newIncubationPeriod = +document.querySelector("#input--incubation-period").value * 1000;
                 const newSpeed = +document.querySelector("#input--speed").value;
+                const newMortalityRate = +document.querySelector("#input--mortality-rate").value;
+                const newPeriodUntilMortalityOrRecovery = +document.querySelector("#input--mortality-recovery-period").value * 1000;
                 pauseButtonSvgPause.classList.remove("button-pause-svg--hidden");
                 pauseButtonSvgPlay.classList.add("button-pause-svg--hidden");
                 for (const key in incubationTimeTracker) delete incubationTimeTracker[key];
@@ -287,6 +316,8 @@ function App() {
                         infectionChance: newInfectionChance,
                         incubationPeriod: newIncubationPeriod,
                         speed: newSpeed,
+                        mortalityRate: newMortalityRate,
+                        periodUntilMortalityOrRecovery: newPeriodUntilMortalityOrRecovery,
                     },
                 });
             };
@@ -306,6 +337,7 @@ function App() {
             const moveNodesInterval = setInterval(moveNodes, 40);
             const handleOverlapsInterval = setInterval(handleOverlaps, 50);
             const incubateNodesInterval = setInterval(incubateNodes, incubationInterval);
+            const advanceNodeMortalityRecoveryInterval = setInterval(advanceNodeMortalityRecovery, mortalityRecoveryInterval);
             settingsButton.addEventListener("click", settingsHandler);
             restartButton.addEventListener("click", restartHandler);
             pauseButton.addEventListener("click", pauseButtonHandler);
@@ -314,6 +346,7 @@ function App() {
                 clearInterval(moveNodesInterval);
                 clearInterval(handleOverlapsInterval);
                 clearInterval(incubateNodesInterval);
+                clearInterval(advanceNodeMortalityRecoveryInterval);
                 pauseButton.addEventListener("click", pauseButtonHandler);
                 restartButton.removeEventListener("click", restartHandler);
                 settingsButton.removeEventListener("click", settingsHandler);
@@ -372,6 +405,24 @@ function App() {
                             sliderId="slider--speed"
                             inputId="input--speed"
                             unit="%"
+                        ></Setting>
+                        <Setting
+                            title="Mortality Rate:"
+                            min="0"
+                            max="100"
+                            defaultValue="10"
+                            sliderId="slider--mortality-rate"
+                            inputId="input--mortality-rate"
+                            unit="%"
+                        ></Setting>
+                        <Setting
+                            title="Period Until Recovery or Mortality:"
+                            min="0"
+                            max="50"
+                            defaultValue="20"
+                            sliderId="slider--mortality-recovery-period"
+                            inputId="input--mortality-recovery-period"
+                            unit="secs"
                         ></Setting>
                     </section>
                     <div className="buttons">
