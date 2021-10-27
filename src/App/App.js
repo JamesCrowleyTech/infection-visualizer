@@ -10,6 +10,8 @@ const initialState = {
     infectionChance: 50,
     incubationPeriod: 2000,
     speed: 25,
+    mortalityRate: 10,
+    timeUntilMortalityOrRecovery: 10000,
 };
 
 const mainContext = createContext(initialState);
@@ -34,9 +36,15 @@ function App() {
             const selection = document.getElementById("selection");
             const settingsTransform = -document.querySelector(".settings").getBoundingClientRect().bottom;
             const pauseButton = document.getElementById("button-pause");
+            const pauseButtonSvgPlay = document.getElementById("button-pause-svg--play");
+            const pauseButtonSvgPause = document.getElementById("button-pause-svg--pause");
             const incubationTimeTracker = {};
             const incubationInterval = 184;
             let paused = false;
+            const nodeIds = [];
+            for (const node of nodes) nodeIds.push(node.id);
+
+            const infectionMap = {};
 
             // grid for hashing locations of nodes
 
@@ -53,6 +61,13 @@ function App() {
                 node.classList.remove("node--vaccinated");
                 node.classList.remove("node--incubating");
                 node.classList.remove("node--infected");
+
+                infectionMap[node.id] = new Set();
+                nodeIds.forEach(function (nodeId) {
+                    if (Math.random() < state.infectionChance / 100) infectionMap[node.id].add(nodeId);
+                });
+                if (!infectionMap[node.id].size)
+                    infectionMap[node.id].add(nodeIds[Math.floor(Math.random() * state.numberOfPeople) - 1]);
             });
 
             const nodeWidth = nodes[0].offsetWidth;
@@ -66,13 +81,9 @@ function App() {
 
             const degreesToRadians = Math.PI / 180;
 
-            const sleep = function (ms) {
-                return new Promise((resolve) => setTimeout(resolve, ms));
-            };
-
             const moveNodes = function () {
                 if (paused) return;
-                const movement = state.speed / 130;
+                const movement = state.speed / 200;
                 nodes.forEach(function (node) {
                     const parseFloatedTop = parseFloat(node.style.top);
                     const parseFloatedLeft = parseFloat(node.style.left);
@@ -210,6 +221,7 @@ function App() {
                     for (const bucket of bucketsToSearch) {
                         for (const otherNodeId of grid[bucket]) {
                             if (otherNodeId === node.id) continue;
+                            if (!infectionMap[node.id].has(otherNodeId)) continue;
 
                             if (!document.querySelector(`#${otherNodeId}`).classList.contains("node--infected")) continue;
 
@@ -246,10 +258,6 @@ function App() {
             };
 
             const pauseButtonHandler = function () {
-                const pauseButton = document.getElementById("button-pause");
-                const pauseButtonSvgPlay = document.getElementById("button-pause-svg--play");
-                const pauseButtonSvgPause = document.getElementById("button-pause-svg--pause");
-
                 if (paused) {
                     paused = false;
                     pauseButtonSvgPause.classList.remove("button-pause-svg--hidden");
@@ -267,6 +275,8 @@ function App() {
                 const newInfectionChance = +document.querySelector("#input--infectiousness").value;
                 const newIncubationPeriod = +document.querySelector("#input--incubation-period").value * 1000;
                 const newSpeed = +document.querySelector("#input--speed").value;
+                pauseButtonSvgPause.classList.remove("button-pause-svg--hidden");
+                pauseButtonSvgPlay.classList.add("button-pause-svg--hidden");
                 for (const key in incubationTimeTracker) delete incubationTimeTracker[key];
 
                 dispatch({
@@ -293,8 +303,8 @@ function App() {
                 }
             };
 
-            const moveNodesInterval = setInterval(moveNodes, 53);
-            const handleOverlapsInterval = setInterval(handleOverlaps, 97);
+            const moveNodesInterval = setInterval(moveNodes, 40);
+            const handleOverlapsInterval = setInterval(handleOverlaps, 50);
             const incubateNodesInterval = setInterval(incubateNodes, incubationInterval);
             settingsButton.addEventListener("click", settingsHandler);
             restartButton.addEventListener("click", restartHandler);
@@ -320,7 +330,7 @@ function App() {
                         <h2>Settings</h2>
                         <Setting
                             title="Population:"
-                            min="1"
+                            min="10"
                             max="2000"
                             defaultValue="500"
                             sliderId="slider--nodes"
@@ -338,7 +348,7 @@ function App() {
                         ></Setting>
                         <Setting
                             title="Infectiousness:"
-                            min="1"
+                            min="10"
                             max="100"
                             defaultValue="70"
                             sliderId="slider--infectiousness"
