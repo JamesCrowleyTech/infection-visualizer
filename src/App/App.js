@@ -90,6 +90,8 @@ function App() {
 
             const moveNodes = function () {
                 if (paused) return;
+                if (!infected) return;
+                console.log(infected);
                 const movement = state.speed / 200;
                 nodes.forEach(function (node) {
                     if (node.classList.contains("node--deceased")) return;
@@ -244,8 +246,11 @@ function App() {
 
                             if (separation < nodeWidth) {
                                 if (state.incubationPeriod === 0) {
-                                    node.classList.add("node--infected");
-                                    mortalityRecoveryTracker[node.id] = state.periodUntilMortalityOrRecovery;
+                                    if (!node.classList.contains("node--infected")) {
+                                        node.classList.add("node--infected");
+                                        infected++;
+                                        mortalityRecoveryTracker[node.id] = state.periodUntilMortalityOrRecovery;
+                                    }
                                 } else {
                                     node.classList.add("node--incubating");
                                     if (!incubationTimeTracker[node.id]) incubationTimeTracker[node.id] = state.incubationPeriod;
@@ -263,6 +268,7 @@ function App() {
                     if (value <= 0) {
                         const node = document.getElementById(key);
                         node.classList.remove("node--infected");
+                        infected--;
                         if (state.mortalityRate / 100 > Math.random()) node.classList.add("node--deceased");
                         else node.classList.add("node--recovered");
                         delete mortalityRecoveryTracker[key];
@@ -278,6 +284,7 @@ function App() {
                         const nodeToInfect = document.getElementById(key);
                         nodeToInfect.classList.remove("node--incubating");
                         nodeToInfect.classList.add("node--infected");
+                        infected++;
                         mortalityRecoveryTracker[key] = state.periodUntilMortalityOrRecovery;
                         delete incubationTimeTracker[key];
                     } else incubationTimeTracker[key] -= incubationInterval;
@@ -425,6 +432,7 @@ function App() {
                             unit="secs"
                         ></Setting>
                     </section>
+                    <div></div>
                     <div className="buttons">
                         <button type="button" onClick={function () {}} className="selection__button" id="button-restart">
                             Restart
