@@ -170,6 +170,7 @@ function App() {
 
             const handleOverlaps = function () {
                 if (paused) return;
+                if (!vaccinatedPopulation < state.numberOfPeople) return;
 
                 const [viewportHeight, viewportWidth] = [window.innerHeight, window.innerWidth];
 
@@ -186,7 +187,12 @@ function App() {
                 }
 
                 nodes.forEach(function (node, index) {
+                    if (vaccinatedPopulation === state.numberOfPeople) {
+                        console.log(nodes);
+                        debugger;
+                    }
                     const [nodeTop, nodeLeft] = nodeCoordinates[node.id];
+
                     let bucketY = Math.floor((nodeTop / 100) * gridCellsY);
                     let bucketX = Math.floor((nodeLeft / 100) * gridCellsX);
                     if (bucketY >= gridCellsY) bucketY = gridCellsY - 1;
