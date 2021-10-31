@@ -1,0 +1,14 @@
+.statistic {
+    display: flex;
+    align-items: center;
+}
+
+.statistic__node {
+    border: 2px solid black;
+    padding: 1.3rem;
+    border-radius: 1000rem;
+}
+
+.statistic__number {
+    font-size: 2.3rem;
+}

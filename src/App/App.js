@@ -1,8 +1,9 @@
 import "./App.css";
-import { createContext, useReducer, useEffect } from "react";
+import { useState, useRef, createContext, useReducer, useEffect } from "react";
 import reducer from "../reducer";
 import Setting from "../Setting/Index";
 import icons from "../img/svg/icons.svg";
+import Statistic from "../Statistic/Index";
 
 const initialState = {
     numberOfPeople: 500,
@@ -18,6 +19,12 @@ const mainContext = createContext(initialState);
 
 function App() {
     const [state, dispatch] = useReducer(reducer, initialState);
+
+    let infected = 0;
+    let incubating = 0;
+    let healthy = state.numberOfPeople;
+    let recovered = 0;
+    let deceased = 0;
 
     useEffect(
         function () {
@@ -46,11 +53,19 @@ function App() {
             const nodeIds = [];
             for (const node of nodes) nodeIds.push(node.id);
             const infectionMap = {};
-            let healthy = state.numberOfPeople - 1;
-            let incubating = 0;
-            let infected = 1;
-            let recovered = 0;
-            let deceased = 0;
+            const infectedDisplay = document.getElementById("statistic--infected__number");
+            const incubatingDisplay = document.getElementById("statistic--incubating__number");
+            const healthyDisplay = document.getElementById("statistic--healthy__number");
+            const recoveredDisplay = document.getElementById("statistic--recovered__number");
+            const deceasedDisplay = document.getElementById("statistic--deceased__number");
+
+            const updateStatistics = function () {
+                infectedDisplay.innerHTML = infected;
+                incubatingDisplay.innerHTML = incubating;
+                healthyDisplay.innerHTML = healthy;
+                recoveredDisplay.innerHTML = recovered;
+                deceasedDisplay.innerHTML = deceased;
+            };
 
             nodes.forEach(function (node) {
                 const topPos = Math.random() * 100;
@@ -78,10 +93,17 @@ function App() {
 
             const nodeWidth = nodes[0].offsetWidth;
             for (let i = 0; i < vaccinatedPopulation; i++) {
+                healthy--;
                 nodes[i].classList.add("node--vaccinated");
             }
 
+            document.getElementById("statistic--vaccinated__number").innerHTML = vaccinatedPopulation;
+            updateStatistics();
+
             if (vaccinatedPopulation < state.numberOfPeople) {
+                infected++;
+                healthy--;
+                updateStatistics();
                 nodes[state.numberOfPeople - 1].classList.add("node--infected");
                 mortalityRecoveryTracker[nodes[state.numberOfPeople - 1].id] = state.periodUntilMortalityOrRecovery;
             }
@@ -90,8 +112,7 @@ function App() {
 
             const moveNodes = function () {
                 if (paused) return;
-                if (!infected) return;
-                console.log(infected);
+                if (!infected && !incubating) return;
                 const movement = state.speed / 200;
                 nodes.forEach(function (node) {
                     if (node.classList.contains("node--deceased")) return;
@@ -249,10 +270,18 @@ function App() {
                                     if (!node.classList.contains("node--infected")) {
                                         node.classList.add("node--infected");
                                         infected++;
+                                        healthy--;
+                                        updateStatistics();
                                         mortalityRecoveryTracker[node.id] = state.periodUntilMortalityOrRecovery;
                                     }
                                 } else {
-                                    node.classList.add("node--incubating");
+                                    if (!node.classList.contains("node--incubating")) {
+                                        node.classList.add("node--incubating");
+                                        incubating++;
+                                        healthy--;
+                                        updateStatistics();
+                                    }
+
                                     if (!incubationTimeTracker[node.id]) incubationTimeTracker[node.id] = state.incubationPeriod;
                                 }
                             }
@@ -269,8 +298,14 @@ function App() {
                         const node = document.getElementById(key);
                         node.classList.remove("node--infected");
                         infected--;
-                        if (state.mortalityRate / 100 > Math.random()) node.classList.add("node--deceased");
-                        else node.classList.add("node--recovered");
+                        if (state.mortalityRate / 100 > Math.random()) {
+                            node.classList.add("node--deceased");
+                            deceased++;
+                        } else {
+                            node.classList.add("node--recovered");
+                            recovered++;
+                        }
+                        updateStatistics();
                         delete mortalityRecoveryTracker[key];
                     } else mortalityRecoveryTracker[key] -= mortalityRecoveryInterval;
                 });
@@ -285,6 +320,8 @@ function App() {
                         nodeToInfect.classList.remove("node--incubating");
                         nodeToInfect.classList.add("node--infected");
                         infected++;
+                        incubating--;
+                        updateStatistics();
                         mortalityRecoveryTracker[key] = state.periodUntilMortalityOrRecovery;
                         delete incubationTimeTracker[key];
                     } else incubationTimeTracker[key] -= incubationInterval;
@@ -314,7 +351,6 @@ function App() {
                 pauseButtonSvgPause.classList.remove("button-pause-svg--hidden");
                 pauseButtonSvgPlay.classList.add("button-pause-svg--hidden");
                 for (const key in incubationTimeTracker) delete incubationTimeTracker[key];
-
                 dispatch({
                     type: "SET_ALL_INFECTION_VALUES",
                     payload: {
@@ -432,17 +468,26 @@ function App() {
                             unit="secs"
                         ></Setting>
                     </section>
-                    <div></div>
-                    <div className="buttons">
-                        <button type="button" onClick={function () {}} className="selection__button" id="button-restart">
-                            Restart
-                        </button>
-                        <button type="button" className="selection__button" id="button-settings">
-                            Infection settings
-                            <p id="button-settings__arrow" className="button-settings__arrow--up">
-                                &uarr;
-                            </p>
-                        </button>
+                    <div className="bottom-row">
+                        <div className="buttons">
+                            <button type="button" className="selection__button" id="button-restart">
+                                Restart
+                            </button>
+                            <button type="button" className="selection__button" id="button-settings">
+                                Infection settings
+                                <p id="button-settings__arrow" className="button-settings__arrow--up">
+                                    &uarr;
+                                </p>
+                            </button>
+                        </div>
+                        <div className="statistics">
+                            <Statistic id="statistic--infected" num={infected} colour="red"></Statistic>
+                            <Statistic id="statistic--incubating" num={incubating} colour="orange"></Statistic>
+                            <Statistic id="statistic--healthy" num={healthy} colour="#0f0"></Statistic>
+                            <Statistic id="statistic--recovered" num={recovered} colour="#0d26ff"></Statistic>
+                            <Statistic id="statistic--deceased" num={deceased} colour="black"></Statistic>
+                            <Statistic id="statistic--vaccinated" num={0} colour="#0d8eff"></Statistic>
+                        </div>
                         <button id="button-pause">
                             <svg className="button-pause-svg button-pause-svg--hidden" id="button-pause-svg--play">
                                 <use className="button-pause-path" href={`${icons}#icon-play3`}></use>
