@@ -1,5 +1,5 @@
 import "./App.css";
-import { useState, useRef, createContext, useReducer, useEffect } from "react";
+import { createContext, useReducer, useEffect } from "react";
 import reducer from "../reducer";
 import Setting from "../Setting/Index";
 import icons from "../img/svg/icons.svg";
@@ -170,7 +170,7 @@ function App() {
 
             const handleOverlaps = function () {
                 if (paused) return;
-                if (!vaccinatedPopulation < state.numberOfPeople) return;
+                if (!(vaccinatedPopulation < state.numberOfPeople)) return;
 
                 const [viewportHeight, viewportWidth] = [window.innerHeight, window.innerWidth];
 
@@ -204,7 +204,7 @@ function App() {
                     grid[`${bucketY},${bucketX}`].push(node.id);
                 });
 
-                nodes.forEach(function (node, index) {
+                nodes.forEach(function (node) {
                     const classList = node.classList;
                     if (
                         classList.contains("node--vaccinated") ||
