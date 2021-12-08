@@ -408,72 +408,101 @@ function App() {
         <mainContext.Provider value={{ state, dispatch }}>
             <div className="app">
                 <div className="selection" id="selection">
-                    <section className="settings" id="settings">
-                        <h2>Settings</h2>
-                        <Setting
-                            title="Population:"
-                            min="10"
-                            max="2000"
-                            defaultValue="500"
-                            sliderId="slider--nodes"
-                            inputId="input--nodes"
-                            unit="#"
-                        ></Setting>
-                        <Setting
-                            title="Vaccination Rate:"
-                            min="0"
-                            max="100"
-                            defaultValue="20"
-                            sliderId="slider--vaccination-rate"
-                            inputId="input--vaccincation-rate"
-                            unit="%"
-                        ></Setting>
-                        <Setting
-                            title="Infectiousness:"
-                            min="10"
-                            max="100"
-                            defaultValue="70"
-                            sliderId="slider--infectiousness"
-                            inputId="input--infectiousness"
-                            unit="%"
-                        ></Setting>
-                        <Setting
-                            title="Incubation Period:"
-                            min="0"
-                            max="50"
-                            defaultValue="2"
-                            sliderId="slider--incubation-period"
-                            inputId="input--incubation-period"
-                            unit="secs"
-                        ></Setting>
-                        <Setting
-                            title="Speed:"
-                            min="10"
-                            max="100"
-                            defaultValue="40"
-                            sliderId="slider--speed"
-                            inputId="input--speed"
-                            unit="%"
-                        ></Setting>
-                        <Setting
-                            title="Mortality Rate:"
-                            min="0"
-                            max="100"
-                            defaultValue="10"
-                            sliderId="slider--mortality-rate"
-                            inputId="input--mortality-rate"
-                            unit="%"
-                        ></Setting>
-                        <Setting
-                            title="Period Until Recovery or Mortality:"
-                            min="0"
-                            max="50"
-                            defaultValue="20"
-                            sliderId="slider--mortality-recovery-period"
-                            inputId="input--mortality-recovery-period"
-                            unit="secs"
-                        ></Setting>
-                    </section>
+                    <div className="selection__top">
+                        <section className="settings" id="settings">
+                            <h2 className="settings__title">Settings</h2>
+                            <Setting
+                                title="Population:"
+                                min="10"
+                                max="2000"
+                                defaultValue="500"
+                                sliderId="slider--nodes"
+                                inputId="input--nodes"
+                                unit="#"
+                            ></Setting>
+                            <Setting
+                                title="Vaccination Rate:"
+                                min="0"
+                                max="100"
+                                defaultValue="20"
+                                sliderId="slider--vaccination-rate"
+                                inputId="input--vaccincation-rate"
+                                unit="%"
+                            ></Setting>
+                            <Setting
+                                title="Infectiousness:"
+                                min="10"
+                                max="100"
+                                defaultValue="70"
+                                sliderId="slider--infectiousness"
+                                inputId="input--infectiousness"
+                                unit="%"
+                            ></Setting>
+                            <Setting
+                                title="Incubation Period:"
+                                min="0"
+                                max="50"
+                                defaultValue="2"
+                                sliderId="slider--incubation-period"
+                                inputId="input--incubation-period"
+                                unit="secs"
+                            ></Setting>
+                            <Setting
+                                title="Speed:"
+                                min="10"
+                                max="100"
+                                defaultValue="40"
+                                sliderId="slider--speed"
+                                inputId="input--speed"
+                                unit="%"
+                            ></Setting>
+                            <Setting
+                                title="Mortality Rate:"
+                                min="0"
+                                max="100"
+                                defaultValue="10"
+                                sliderId="slider--mortality-rate"
+                                inputId="input--mortality-rate"
+                                unit="%"
+                            ></Setting>
+                            <Setting
+                                title="Period Until Recovery or Mortality:"
+                                min="0"
+                                max="50"
+                                defaultValue="20"
+                                sliderId="slider--mortality-recovery-period"
+                                inputId="input--mortality-recovery-period"
+                                unit="secs"
+                            ></Setting>
+                        </section>
+                        <section className="selection__key">
+                            <h3 className="selection__key-title">Key</h3>
+                            <div className="selection__key-item">
+                                <div className="selection__key-color" style={{ backgroundColor: "red" }}></div>
+                                <div className="selection__key-text">Infected</div>
+                            </div>
+                            <div className="selection__key-item">
+                                <div className="selection__key-color" style={{ backgroundColor: "orange" }}></div>
+                                <div className="selection__key-text">Incubating (asymptomatic)</div>
+                            </div>
+                            <div className="selection__key-item">
+                                <div className="selection__key-color" style={{ backgroundColor: "lime" }}></div>
+                                <div className="selection__key-text">Healthy</div>
+                            </div>
+                            <div className="selection__key-item">
+                                <div className="selection__key-color" style={{ backgroundColor: "rgb(13, 38, 255)" }}></div>
+                                <div className="selection__key-text">Recovered</div>
+                            </div>
+                            <div className="selection__key-item">
+                                <div className="selection__key-color" style={{ backgroundColor: "black" }}></div>
+                                <div className="selection__key-text">Deceased</div>
+                            </div>
+                            <div className="selection__key-item">
+                                <div className="selection__key-color" style={{ backgroundColor: "rgb(13, 142, 255)" }}></div>
+                                <div className="selection__key-text">Vaccinated</div>
+                            </div>
+                        </section>
+                    </div>
                     <div className="bottom-row">
                         <div className="buttons">
                             <button type="button" className="selection__button" id="button-restart">
